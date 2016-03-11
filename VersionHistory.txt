@@ -1,0 +1,274 @@
+Generate the panels you need using pt_DataAcq and fill in the hardware info (given below) for your rig.
+Also read the latest changes in this version below.
+
+
+EPhys				Input-Output channels for electrophysiology
+Temperature			Channel for recording temperature
+ScanMirror			Channel for scanning the laser beam
+LaseShutter			Channel for opening-closing the shutter
+LaserVoltage			Channel for changing the laser voltage
+LaserPower			Channel for recording laser power
+TrigGen				Utility for scanning multiple channels together or a single channel multiple times
+
+WaveGenerator		Utility for generating stimulus waves
+MarkXYPositions		Utility for marking positions on an image with mouse and stimulating with laser
+AnalyseData			Utility for real time data analysis
+
+
+Hardware Info:
+
+========================================
+ChR2 Rig
+
+EPhys1			1,1,0,0
+EPhys2			1,1,1,1
+EPhys3			1,1,2,2
+EPhys4			1,1,3,3
+
+Temperature1	1,4,10
+
+LaserShutter1	1,0,5
+
+LaserVoltage1	3,0
+
+ScanMirror1		2,0,1,1,1,0,0
+
+LaserPower1		Not-Connected
+========================================
+Praveen's Rig
+
+EPhys1			1,1,0,0
+EPhys2			1,1,1,1
+EPhys3			2,1,0,2
+EPhys4			2,1,1,3
+
+Temperature1	1,4,10
+
+
+========================================
+Jamie's Rig
+
+EPhys1
+EPhys2
+EPhys3
+EPhys4
+Temperature1	Not-Connected
+========================================
+New Installation of program on a computer.
+
+1. Download and install Nidaq-mx drivers from National Instruments. Maybe un-install the previous
+National Instrument drivers on the computer before installing the new ones.
+2. Install Nidaq-mx tools from wavemetrics (at the minimum copy the .xop file or short-cut to it in 
+Igor Extensions)
+3. Also add short-cut to GetInputState (located in Igor Pro Folder\More Extensions\Utilities) in 
+Igor Extension folder
+4. When windows finds new hardware (it's ok if the drivers are installed after hardware is physically
+installed), choose 'install automatically'
+5. The devices should show up in control panel -> system->device manager
+6. The devices should show up in NI-MAX under Devices and Interfaces (may not appear under
+separate category of N-Daqmx Devices). Also if the old drivers are still there the same device can
+also appear under 'legacy drivers'
+7. Add RTSI cable (available from National Instruments) to allow cards to talk to each other and 
+remove any previous external connections between cards.
+8. In Max add device as RTSI cable and add cards to RTSI cable. Also configure card accessories
+like the BNC2090 connector board, etc.
+9. Don't worry if the card doesn't read signal in MAX (it probably needs setting up of virtual tasks under
+Data Neighbourhood and physically connecting output channel to input channel)
+10. In Igor, compile pt_ChR2AcquisProg and add the right hardware info.
+11. Create stimulus waves and scan. If things don't look right it could be that the new drivers changed 
+the device ID of cards so that Dev1 is now Dev2, etc. If this appears to be the case, then switch cables
+connected to the cards at the back of the computer
+12. Other troubleshooting tips: Check if only input is working by providing seal-test output from
+Multi-clamp commander. Check if only output is working by plugging the output to osscilloscope.
+13. 
+
+========================================
+
+
+First release version 0.50 (Date: 01282010)
+Experiment file: 
+pt_ChR2AcquisProg_50.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_5
+pt_ChR2DataAcquisUtils0_5
+
+2nd release version 0.52 (Date: 02222010)
+Experiment file: 
+pt_ChR2AcquisProg_52.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_52
+pt_ChR2DataAcquisUtils0_52
+
+3rd release version 0.53 (Date: 03282010)  : pre-released as 0.521 earlier
+Experiment file: 
+pt_ChR2AcquisProg_53.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_53
+pt_ChR2DataAcquisUtils0_53
+
+Changes:
+
+1. EPhys traces have different colors for different channels (need to implement same for other devices)
+2. Wave generator can generate start, end points for a stimulus train of a given frequency
+3. Laser shutter module is activated
+a. checked that the allowed wave is made of 0's,1's only when sent from panel (actually from panel the 
+program makes the binary wave not the user and the program does it correctly) is correctly saved, 
+displayed and same when sent from triggen. Also, implemented dummy wave acquisition to
+trigger digital channels in case no analog i/o operation is specified
+4. Scan mirror module is activated
+a.  checked that the allowed voltage is between -10 to +10 V , is correctly saved, displayed and same 
+when sent from triggen.
+
+3rd release version 0.53 (Date: 03282010)  : pre-released as 0.521 earlier
+Experiment file: 
+pt_ChR2AcquisProg_53.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_53
+pt_ChR2DataAcquisUtils0_53
+
+Changes:
+
+1. Popup for channels to be scanned (instead of manually editing) in TrigGen. The selection is toggled.
+2. Fixed error from ModifyGraph "trace is not on graph"
+3. Fixed the wrong display of current value in LaserShutter panel after sending a wave to shutter
+through triggen
+4. Included a preliminary version of Mouse XY locations which gets the coordinates of points clicked
+by the user on an image (eg. for marking which neurons should be scanned by the laser).
+5. Modified ScanMirror to merge two gains (dist2theta and theta2volt) to a single combined gain
+dist2volt, and allowed this gain to be different for X,Y. Typically, the user will measure, the distance
+traversed by the spot for a given voltage and enter voltage/distance as the gain. As long as the units
+of distance are same between gain and the distance to be moved the units can be anything. An
+advantage of separating the x,y gains is that the user can enter negative gains even for one axis (will
+be needed if the positive voltage decreased the coordinates along an axis.
+6. Modified WaveGenerator to be able to auto-generate values for 
+a) a wave with multiple steps at a fixed frequency (like induction protocol in LTP/LTD expt)
+b) many waves with a fixed amplitude difference (like for an FI curve, IV curve, scanning of mirrors in a grid)
+
+7) Added popup menu to scan mirrors to populate OutXWaveNamesW, OutYWaveNamesW for a horizontal,
+vertical, random (random to be coded still) scan.
+8) Horizontal and vertical scans were swapped. corrected that
+9) Default EPhys gains were being used and not the user modified gains. Also, since saving the experiment
+as template doesn't save checkboxes (like the VClamp is supposed to be checked by default), I modified the
+code that by default none of the box is checked and the gains are set to NaN. When the user clicks on 
+VClamp or IClamp the default gains appear. If the user modifies the gains they are retained and used
+10) In Scan mirror added an XOffset and YOffset to allow for the spot to be not exactly at 0,0 of the image.
+Now if the spot is say, (1,2) when no voltage is applied, and the user specifies to go to 1,3 then the voltage
+is calculated for deltax=0 and deltay=1 that is,
+voltage = (final position -offset)*Gain (Gain Units = Voltage/Distance)
+
+4th release version 0.54 (Date: 04222010)  : 
+Experiment file: 
+pt_ChR2AcquisProg_54.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_54
+pt_ChR2DataAcquisUtils0_54
+
+Changes:
+
+1. Corrected the bug that caused EPhys channel to expect a OutWave to save even when no outwave was
+being sent by not making OutWaveToSave by default. It will be made only when there is an outwave.
+2. The Scan Protocol in ScanMirror only allowed for a sqare grid. Now it allows for a rectangular grid ie.
+number of position waves for x, y can be different (eg. 5 X positions and 3 Y positions, etc.)
+3. Implemented StimOnClick in MouseXYLoc. Earlier, the user had to manually make waves for scan-
+mirror using XY position obtained by clicking on image. Now this process is automated. When the 
+StimOnClick box is checked a popup menu, allows to specify wavelength, number of stims, frequency, 
+width for the shutter. These are parameters from WaveGen and NStepsAtFixedFreq in WaveGen. Then
+the wave for the current XY position is made and duplicated into scan-mirror, laser-shutter, EPhys channels
+and also OutWaveNamesW/ InWaveNames are updated for each channels. Following this the Start button from
+TrigGen is called. At the end OutWaveNames/ InWaveNames are restored for each channel. Since many
+channels are scanned together TrigGen is used (as opposed to individual panels). What all channels will 
+be scanned is read from the channels drop-down menu in TrigGen. At the minimum scan mirror should
+be there. Other channels are optional
+4. Started coding the real time analysis of the post-synaptic response. 
+
+
+5th pre-release version 0.55 (Date: 07142010)  : 
+Experiment file: 
+pt_ChR2AcquisProg_55.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_55
+pt_ChR2DataAcquisUtils0_55
+
+Changes:
+
+1.  Added seal-test pulse in WaveGen
+2.  Added real-time seal test analysis
+3.  Added reset buttons to re-enable scan buttons, if the latter are disabled due to incomplete scan
+4.  WaveGen makes variables for different stim-protocols at the outset. User no longer needs to choose
+a protocol to generate these variables. This was a problem if auto-stim was used without the variables
+in wavegen being generated first
+5. Removed arbitrary AamplitudeDiff and ArbitraryFreq protocols
+6. Utils to Analyze data, tile all windows, kill all windows
+
+
+6th release version 0.57 (Date: 11082010)  : 
+Experiment file: 
+pt_ChR2AcquisProg_57.pxt
+
+ProcedureFiles: 
+pt_ChR2Main0_57
+pt_ChR2DataAcquisUtils0_57
+
+Changes:
+
+CAUTION: If scanning more than 1 channel simultaneously, remember that channels are actually scanned 
+sequentially (except with S-series board that has multiple analog to digital converters). Thus there is a slight 
+offset between channels (usually much smaller than sampling interval of 100 microseconds aka 10KHz). The 
+offset is equal to fastest the device can scan + 10 microseconds. Typical value may be < 20 microseconds.  
+
+1. In order to save disk-space for temperature (and laser power) channels, the waves are resampled at 100 Hz before displaying and 
+saving. Also along with raw data, the average Temperature (and laser power) are also displayed.
+I think it's very useful to record temperature for all experiments.
+
+2. WaveNotes is used to save the information about the stimulus wave with the acquired wave (Jamie's idea).
+The stim waves must be created using WaveGen (as opposed to manually) for the wavenote to be attached.
+Use StringByKey command in analysis programs to access different fields in a wavenote.
+
+3. No need to enter inwaves in InWaveNamesW for any EPhys, Temperature (and laser power) channel. However, if the user does
+specify Inwaves in InWaveNamesW, the waves must exist. 
+
+Algorithm for Inwave generation:
+
+a. For EPhys channels if Outwave is being sent then it is used to create inwave and wavenote from outwave is also copied.
+b. If Outwave is not being sent, user specified inwave in InWaveNamesW is used. This InWave has an attached wavenote. 
+c. If user has not specified any inwave and outwave is not being scanned for the channel, one is created based on Out/Inwaves on other channels being scanned. In this case, wavenote
+is NOT copied.
+d. For temperature (and laser power), Inwave is created based on outwaves/ inwaves of other channels being scanned unless the user has specified
+a wave of correct length and resolution. In the former case, no wave note exists with temperature wave. 
+
+
+4. If the next Cell # and iter # to be scanned already exists on the disk (eg. the user is overwriting existing waves
+by mistake or deliberately), the program prompts the user with a warning.
+
+5. EPhys panels have a 'rnd' button, to randomise the stim waves sent through triggen.
+
+6. The new cell button on EPhys channels is back.
+
+7. FI curve realtime analysis is now available. Choose from Analyse Data panel. The channel obviously has to
+be in current clamp and inwave must be acquired for analysis to work.
+
+8. Graphs now use easily viewable colors for different traces (as opposed to colors like yellow).
+
+9. OutwaveNames need not be entered by hand. Use Triggen Stimulus Pattern button to view all InWaveNames
+and OutWaveNames for channels selected for scanning. select any column in the table displaying the 
+stimulus pattern and Use Search with a MatchStr (eg. OutW*) to search all matching waves for that channel.
+Delete any unwanted wavenames and press Update button to write the pattern to the channel. 
+
+10. TrigGen Channel popup now has a ShowAll options that could be used if you just want to see the selected
+channels without toggling them. 
+
+11. In wavegen no need to change the current data folder manually to different channels. Use drop-down menu
+to select the channel for which you want to create the wave
+
+12. In WaveGen, the Step-values button is removed. Just having the create button keeps it simple (Yasmin's
+idea).
+
+
+
+
